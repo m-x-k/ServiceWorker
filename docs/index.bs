@@ -365,6 +365,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated {{NavigationPreloadManager}} object.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-navigation-preload-enabled-flag">navigation preload enabled flag</dfn>. It is initially unset.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-navigation-preload-header-value">navigation preload header value</dfn>, which is a DOMString. Initially set to "<code>true</code>".</p>
 
@@ -611,7 +612,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-navigation-preload">
       <h4 id="navigator-service-worker-navigation-preload">{{ServiceWorkerRegistration/navigationPreload}}</h4>
 
-      <p>The <code><dfn attribute for="NavigationPreloadManager" title="navigationPreload">navigationPreload</dfn></code> attribute exposes a {{NavigationPreloadManager}}, which has an associated <a>service worker registration</a> represented by the {{ServiceWorkerRegistration}} on which the attribute is exposed.</p>
+      <p>The <code><dfn attribute for="ServiceWorkerRegistration" title="navigationPreload">navigationPreload</dfn></code> attribute's getter <em class="rfc2119" title="MUST">must</em> return the <a>service worker registration</a>'s {{NavigationPreloadManager}} object.</p>
     </section>
 
     <section algorithm="service-worker-registration-scope">
@@ -912,7 +913,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -933,7 +934,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -954,7 +955,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -975,7 +976,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
         </li>
         <li>
           Let <var>state</var> be a new {{NaivgationPreloadState}} dictionary.
