@@ -900,7 +900,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </pre>
     <pre class="idl" id="navigation-preload-state">
       dictionary NavigationPreloadState {
-        boolean enabled;
+        boolean enabled = false;
         DOMString headerValue;
       };
     </pre>
@@ -978,13 +978,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
         </li>
         <li>
-          Let <var>state</var> be a new {{NaivgationPreloadState}}.
+          Let <var>state</var> be a new {{NaivgationPreloadState}} dictionary.
         </li>
         <li>
-          Set <var>state</var>'s <code>enabled</code> property to the boolean equivalent of <var>registration</var>'s <a>send navigation preload flag</a>.
+          If <var>registration</var>'s <a>send navigation preload flag</a> is set, set <var>state</var>'s <code>enabled</code> dictionary member to true.
         </li>
         <li>
-          Set <var>state</var>'s <code>headerValue</code> property to the <var>registration</var>'s <a>navigation preload header value</a>.
+          Set <var>state</var>'s <code>headerValue</code> dictionary member to the <var>registration</var>'s <a>navigation preload header value</a>.
         </li>
         <li>
           <a>Resolve</a> <var>promise</var> with <var>state</var>.
