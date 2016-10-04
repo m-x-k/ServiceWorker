@@ -365,6 +365,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-send-navigation-preload-flag">send navigation preload flag</dfn>. It is initially unset.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-navigation-preload-header-value">navigation preload header value</dfn>, which is a DOMString. Initially set to "<code>true</code>".</p>
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -568,6 +570,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         readonly attribute ServiceWorker? installing;
         readonly attribute ServiceWorker? waiting;
         readonly attribute ServiceWorker? active;
+        readonly attribute NavigationPreloadManager navigationPreload;
 
         readonly attribute USVString scope;
 
@@ -603,6 +606,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <p><dfn attribute id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value to which it was last set.</p>
 
       <p class="note">The {{ServiceWorker}} objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
+    </section>
+
+    <section algorithm="navigator-service-worker-navigation-preload">
+      <h4 id="navigator-service-worker-navigation-preload">{{ServiceWorkerRegistration/navigationPreload}}</h4>
+
+      <p>The <code><dfn attribute for="NavigationPreloadManager" title="navigationPreload">navigationPreload</dfn></code> attribute exposes a {{NavigationPreloadManager}}, which has an associated <a>service worker registration</a> represented by the {{ServiceWorkerRegistration}} on which the attribute is exposed.</p>
     </section>
 
     <section algorithm="service-worker-registration-scope">
@@ -876,6 +885,116 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <p>The first time the <a>context object</a>'s <a href="#service-worker-container-onmessage-attribute">onmessage</a> IDL attribute is set, its <a>client message queue</a> <em class="rfc2119" title="MUST">must</em> be enabled.</p>
     </section>
   </section>
+
+  <section dfn-for="NavigationPreloadManager">
+    <h3 id="navigation-preload-manager">{{NavigationPreloadManager}}</h3>
+
+    <pre class="idl">
+      [SecureContext, Exposed=(Window,Worker)]
+      interface NavigationPreloadManager {
+        Promise&lt;void&gt; enable();
+        Promise&lt;void&gt; disable();
+        Promise&lt;void&gt; setHeaderValue(DOMString value);
+        Promise&lt;NavigationPreloadState&gt; getState();
+      };
+    </pre>
+    <pre class="idl" id="navigation-preload-state">
+      dictionary NavigationPreloadState {
+        boolean enabled;
+        DOMString headerValue;
+      };
+    </pre>
+
+    <section algorithm="navigation-preload-manager-enable">
+      <h4 id="navigation-preload-manager-enable">{{NavigationPreloadManager/enable()}}</h4>
+
+      <p>The <code><dfn method for="NavigationPreloadManager">enable()</dfn></code> method, when invoked, <em class="rfc2119" title="MUST">must</em> return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:</p>
+
+      <ol>
+        <li>
+          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+        </li>
+        <li>
+          Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
+        </li>
+        <li>
+          Set <var>registration</var>'s <a>send navigation preload flag</a>.
+        </li>
+        <li>
+          <a>Resolve</a> <var>promise</var>.
+        </li>
+      </ol>
+    </section>
+
+    <section algorithm="navigation-preload-manager-disable">
+      <h4 id="navigation-preload-manager-disable">{{NavigationPreloadManager/disable()}}</h4>
+
+      <p>The <code><dfn method for="NavigationPreloadManager">disable()</dfn></code> method, when invoked, <em class="rfc2119" title="MUST">must</em> return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:</p>
+
+      <ol>
+        <li>
+          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+        </li>
+        <li>
+          Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
+        </li>
+        <li>
+          Unset <var>registration</var>'s <a>send navigation preload flag</a>.
+        </li>
+        <li>
+          <a>Resolve</a> <var>promise</var>.
+        </li>
+      </ol>
+    </section>
+
+    <section algorithm="navigation-preload-manager-setHeaderValue">
+      <h4 id="navigation-preload-manager-setHeaderValue">{{NavigationPreloadManager/setHeaderValue(value)}}</h4>
+
+      <p>The <code><dfn method for="NavigationPreloadManager">setHeaderValue(<var>value</var>)</dfn></code> method, when invoked, <em class="rfc2119" title="MUST">must</em> return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:</p>
+
+      <ol>
+        <li>
+          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+        </li>
+        <li>
+          Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
+        </li>
+        <li>
+          Set <var>registration</var>'s <a>navigation preload header value</a> to <var>value</var>.
+        </li>
+        <li>
+          <a>Resolve</a> <var>promise</var>.
+        </li>
+      </ol>
+    </section>
+
+    <section algorithm="navigation-preload-manager-getState">
+      <h4 id="navigation-preload-manager-getState">{{NavigationPreloadManager/getState()}}</h4>
+
+      <p>The <code><dfn method for="NavigationPreloadManager">getState()</dfn></code> method, when invoked, <em class="rfc2119" title="MUST">must</em> return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:</p>
+
+      <ol>
+        <li>
+          Let <var>registration</var> be the {{NavigationPreloadManager}}'s associated <a>service worker registration</a>.
+        </li>
+        <li>
+          Let <var>state</var> be a new {{NaivgationPreloadState}}.
+        </li>
+        <li>
+          Set <var>state</var>'s <code>enabled</code> property to the boolean equivalent of <var>registration</var>'s <a>send navigation preload flag</a>.
+        </li>
+        <li>
+          Set <var>state</var>'s <code>headerValue</code> property to the <var>registration</var>'s <a>navigation preload header value</a>.
+        </li>
+        <li>
+          <a>Resolve</a> <var>promise</var> with <var>state</var>.
+        </li>
+      </ol>
+    </section>
+
+  </section>
+
+
 
   <section dfn-for="ServiceWorkerMessageEvent">
     <h3 id="serviceworkermessage-event-section">{{ServiceWorkerMessageEvent}}</h3>
@@ -4137,6 +4256,34 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Else if <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
       <li>Else if <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
       <li>Return <var>newestWorker</var>.</li>
+    </ol>
+  </section>
+
+  <section algorithm="await-active-worker-algorithm">
+    <h3 id="await-active-worker-algorithm">Await active worker</h3>
+
+    <dl>
+      <dt>Input</dt>
+        <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Run the following steps atomically.</li>
+      <li>
+        If <var>registration</var>'s <a>active worker</a> is null:
+        <ol>
+          <li>
+            If <var>registration</var>'s <a>installing worker</a> is null and <var>registration</var>'s <a>waiting worker</a> is null, <a>throw</a> an {{InvalidStateError}} exception.
+          </li>
+          <li>
+            Wait for the <a>installing worker</a> or the <a>waiting worker</a> of <var>registration</var> to become its <a>active worker</a>, or for the <a href="#dfn-state">state</a> of both to become <em>redundant</em>.
+          </li>
+          <li>
+            If <var>registration</var>'s <a>active worker</a> is null, <a>throw</a> an {{InvalidStateError}} exception.
+          </li>
+        </ol>
+      </li>
     </ol>
   </section>
 
