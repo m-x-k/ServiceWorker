@@ -3746,7 +3746,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     <p><a>Fetch</a> <var>preloadRequest</var>.</p>
                     <p>To <a>process response</a> for <var>preloadResponse</var>, run these substeps:</p>
                     <ol>
-                      <li><p>If <var>preloadResponse</var>'s <a title="concept-response-type">type</a> is "<code>error</code>", reject <var>navigationPreload</var> with a <code>TypeError</code> and terminate these substeps.</li>
+                      <li><p>If <var>preloadResponse</var>'s <a>type</a> is "<code>error</code>", reject <var>navigationPreload</var> with a <code>TypeError</code> and terminate these substeps.</li>
                       <li><p>Associate <var>preloadResponseObject</var> with <var>preloadResponse</var>.
                       <li><p>Resolve <var>navigationPreload</var> with <var>preloadResponseObject</var>.
                       </ol>
