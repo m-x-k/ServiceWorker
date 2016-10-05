@@ -129,8 +129,10 @@ spec: csp2; urlPrefix: https://w3c.github.io/webappsec-csp/2/
 
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
+        text: append to header list; url: concept-header-list-append
         text: basic filtered response; url: concept-filtered-response-basic
         text: cancel a ReadableStream; url: concept-cancel-readablestream
+        text: cloning the request; url: concept-request-clone
         text: close ReadableStream; url: concept-close-readablestream
         text: construct a ReadableStream; url: concept-construct-readablestream
         text: CORS filtered response; url: concept-filtered-response-cors
@@ -169,6 +171,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: guard; for: headers; url: concept-headers-guard
         for: header; urlPrefix: #concept-header-
             text: name
+            text: value
             text: parsing; url: parse
         for: request; urlPrefix: #concept-request-
             text: cache mode
@@ -612,7 +615,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-navigation-preload">
       <h4 id="navigator-service-worker-navigation-preload">{{ServiceWorkerRegistration/navigationPreload}}</h4>
 
-      <p>The <code><dfn attribute for="ServiceWorkerRegistration" title="navigationPreload">navigationPreload</dfn></code> attribute's getter <em class="rfc2119" title="MUST">must</em> return the <a>service worker registration</a>'s {{NavigationPreloadManager}} object.</p>
+      <p>The <code><dfn attribute for="ServiceWorkerRegistration" title="navigationPreload">navigationPreload</dfn></code> attribute's getter <em class="rfc2119" title="MUST">must</em> return the <a href="#dfn-service-worker-registration">service worker registration</a>'s {{NavigationPreloadManager}} object.</p>
     </section>
 
     <section algorithm="service-worker-registration-scope">
@@ -913,7 +916,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-registration">service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -934,7 +937,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-registration">service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -955,7 +958,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-registration">service worker registration</a>.
         </li>
         <li>
           Invoke <a href="#await-active-worker-algorithm">Await active worker</a> with <var>registration</var>
@@ -976,10 +979,10 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>
-          Let <var>registration</var> be the <a>context object</a>'s associated <a>service worker registration</a>.
+          Let <var>registration</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-registration">service worker registration</a>.
         </li>
         <li>
-          Let <var>state</var> be a new {{NaivgationPreloadState}} dictionary.
+          Let <var>state</var> be a new {{NavigationPreloadState}} dictionary.
         </li>
         <li>
           If <var>registration</var>'s <a>navigation preload enabled flag</a> is set, set <var>state</var>'s <code>enabled</code> dictionary member to true.
@@ -3714,6 +3717,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Let <var>response</var> be null.</li>
       <li>Let <var>registration</var> be null.</li>
       <li>Let <var>client</var> be the <a href="#dfn-service-worker-client">service worker client</a> that corresponds to <var>request</var>'s <a for="request">client</a>.</li>
+      <li>Let <var>navigationPreload</var> be null.</li>
       <li>Assert: <var>request</var>'s <a for="request">destination</a> is not "<code>serviceworker</code>".</li>
       <li>If <var>request</var> is a <a>potential-navigation-or-subresource request</a>, then:
         <ol>
@@ -3728,6 +3732,29 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>request</var>'s <a for="request">url</a> as the argument.</li>
           <li>If <var>registration</var> is null or <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, return null.</li>
           <li>Set <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+          <li>If <var>request</var> is a <a>navigation request</a> and <var>registration</var>'s <a>navigation preload enabled flag</a> is set, and <var>request</var>'s <a>method</a> is `<code>GET</code>`, then:
+            <ol>
+              <li>Let <var>preloadRequest</var> be the result of <a>cloning the request</a> <var>request</var></li>
+              <li>Let <var>preloadRequestHeaders</var> be <var>preloadRequest</var>'s <a>header list</a></li>
+              <li>Let <var>preloadResponseObject</var> be a new {{Response}}object and a new associated {{Headers}} object whose <a>guard</a> is "<code>immutable</code>"</li>
+              <li><a>Append to header list</a> <var>preloadRequestHeaders</var> a new <a>header</a> whose <a>name</a> is `<code>Service-Worker-Navigation-Preload</code>` and <a>value</a> is <var>registration</var>'s <a>navigation preload header value</a></li>
+              <li>Set <var>preloadRequest</var>'s <a>skip-service-worker flag</a></li>
+              <li>Set <var>navigationPreload</var> to a new <a>promise</a>.</li>
+              <li>Run the following substeps <a>in parallel</a>:
+                <ol>
+                  <li>
+                    <p><a>Fetch</a> <var>preloadRequest</var>.</p>
+                    <p>To <a>process response</a> for <var>preloadResponse</var>, run these substeps:</p>
+                    <ol>
+                      <li><p>If <var>preloadResponse</var>'s <a title="concept-response-type">type</a> is "<code>error</code>", reject <var>navigationPreload</var> with a <code>TypeError</code> and terminate these substeps.</li>
+                      <li><p>Associate <var>preloadResponseObject</var> with <var>preloadResponse</var>.
+                      <li><p>Resolve <var>navigationPreload</var> with <var>preloadResponseObject</var>.
+                      </ol>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </li>
         </ol>
         <p class="note">From this point, the <a href="#dfn-service-worker-client">service worker client</a> starts to <a href="#dfn-use">use</a> its <a href="#dfn-service-worker-client-active-worker">active worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
       </li>
@@ -4272,16 +4299,16 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li>Run the following steps atomically.</li>
       <li>
-        If <var>registration</var>'s <a>active worker</a> is null:
+        If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null:
         <ol>
           <li>
             If <var>registration</var>'s <a>installing worker</a> is null and <var>registration</var>'s <a>waiting worker</a> is null, <a>throw</a> an {{InvalidStateError}} exception.
           </li>
           <li>
-            Wait for the <a>installing worker</a> or the <a>waiting worker</a> of <var>registration</var> to become its <a>active worker</a>, or for the <a href="#dfn-state">state</a> of both to become <em>redundant</em>.
+            Wait for the <a>installing worker</a> or the <a>waiting worker</a> of <var>registration</var> to become its <a href="#dfn-active-worker">active worker</a>, or for the <a href="#dfn-state">state</a> of both to become <em>redundant</em>.
           </li>
           <li>
-            If <var>registration</var>'s <a>active worker</a> is null, <a>throw</a> an {{InvalidStateError}} exception.
+            If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, <a>throw</a> an {{InvalidStateError}} exception.
           </li>
         </ol>
       </li>
