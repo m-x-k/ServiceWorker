@@ -3736,7 +3736,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <ol>
               <li>Let <var>preloadRequest</var> be the result of <a>cloning the request</a> <var>request</var></li>
               <li>Let <var>preloadRequestHeaders</var> be <var>preloadRequest</var>'s <a>header list</a></li>
-              <li>Let <var>preloadResponseObject</var> be a new {{Response}}object and a new associated {{Headers}} object whose <a>guard</a> is "<code>immutable</code>"</li>
+              <li>Let <var>preloadResponseObject</var> be a new {{Response}} object and a new associated {{Headers}} object whose <a>guard</a> is "<code>immutable</code>"</li>
               <li><a>Append to header list</a> <var>preloadRequestHeaders</var> a new <a>header</a> whose <a>name</a> is `<code>Service-Worker-Navigation-Preload</code>` and <a>value</a> is <var>registration</var>'s <a>navigation preload header value</a></li>
               <li>Set <var>preloadRequest</var>'s <a>skip-service-worker flag</a></li>
               <li>Set <var>navigationPreload</var> to a new <a>promise</a>.</li>
