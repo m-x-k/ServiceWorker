@@ -811,7 +811,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. Set <a for="/">service worker</a>'s <a>skip waiting flag</a>
+            1. Set <a for="/">service worker</a>'s <a>skip waiting flag</a>.
             1. If <a for="/">service worker</a>'s <a>state</a> is *installed*, then:
                 1. Run <a>Activate</a> algorithm passing <a for="/">service worker</a>'s <a for="service worker">registration</a> as the argument.  
             1. Resolve |promise| with undefined.
@@ -2442,9 +2442,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
       1. Switching on |job|'s <a>worker type</a>, run these substeps with the following options:
-          : *"<code>classic</code>"*
+          : "<code>classic</code>"
           :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> <a for="service worker">script url</a>, |job|’s <a for="job">client</a>, and "<code>serviceworker</code>".
-          : *"<code>module</code>"*
+          : "<code>module</code>"
           :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> <a for="service worker">script url</a>, |job|’s <a for="job">client</a>, "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker. <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
 
           To <a for="fetching scripts">perform the fetch</a> given |request|, run the following steps if the <a for="fetching scripts">is top-level</a> flag is set:
